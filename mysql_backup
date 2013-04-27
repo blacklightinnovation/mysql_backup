@@ -10,9 +10,9 @@
 #DB Host
 dbhost="127.0.0.1"
 #DB User
-dbuser="root"
+dbuser="rootleveluser"
 #DB Pass
-dbpass="q1w2e3r4t5"
+dbpass="rootlevelpass"
 #DB Port
 dbport="3306"
 
