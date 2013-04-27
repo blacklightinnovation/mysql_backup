@@ -1,0 +1,59 @@
+#!/bin/bash
+######################################################
+# MySQL Database Backup Utility
+#
+# You must change the dbhost, dbuser, dbpass, and
+# dbport parameters in oder to use this utility
+#
+######################################################
+
+#DB Host
+dbhost="127.0.0.1"
+#DB User
+dbuser="root"
+#DB Pass
+dbpass="q1w2e3r4t5"
+#DB Port
+dbport="3306"
+
+# Base Directory for backups
+backup_dir="/mysql_backup/"
+
+#Verify the Directory Exists.. If not then create it
+if [ ! -d $backup_dir ];
+then
+	`mkdir -p $backup_dir`
+fi
+
+# General DB Identification Commands
+dblist="show databases;"
+dbtables="show tables;"
+
+# MySQL Cient Commands
+mysqlcmd="mysql -u$dbuser -p$dbpass -h$dbhost -P $dbport -e "
+databases=`$mysqlcmd "$dblist"`
+
+# For each database found show tables and dump tables into /$backup_dir/$db/tablename.sql
+for db in $databases
+do
+	# The MySQL Command will dump the header 'Databases'. If the DB name = 'Databases' then ignore and continue
+	if [ ! "$db" = "Database" ];
+	then
+		# Verify this database has a backup directory, if not then create it.
+		if [ ! -d "$backup_dir/$db" ];
+		then
+			`mkdir -p "$backup_dir/$db"`
+		fi
+
+		usedb="use $db;"
+		tables=`$mysqlcmd "$usedb $dbtables"`
+		for tn in $tables
+		do
+			if [ ! "$tn" = "Tables_in_$db" ];
+			then
+				mysqldump="mysqldump -u$dbuser -p$dbpass -P $dbport $db $tn "
+				`$mysqldump > "$backup_dir/$db/$tn.sql"`
+			fi
+		done
+	fi
+done
